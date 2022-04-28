@@ -12,9 +12,9 @@
     "96": "icons/socks-icon.svg"
   },
 
-  "applications": {
+  "browser_specific_settings": {
     "gecko": {
-      "strict_min_version": "59.0"
+      "strict_min_version": "91.1.0"
     }
   },
 

@@ -77,7 +77,7 @@
 			capitalizedEltName = eltName.charAt(0).toUpperCase() + eltName.slice(1);
 			formElements[eltName].previousSibling.data = browser.i18n.getMessage("options" + capitalizedEltName + "Label");
 		}
-		document.querySelector("#title").innerHTML = browser.i18n.getMessage("optionsTitle");
+		document.querySelector("#title").textContent = browser.i18n.getMessage("optionsTitle");
 	}
 	
 	/** JS initialization for options UI */
