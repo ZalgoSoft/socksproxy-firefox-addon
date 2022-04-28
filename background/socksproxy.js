@@ -77,7 +77,9 @@
     function checkIncognitoAccess() {
         browser.extension.isAllowedIncognitoAccess().then((isAllowed) => {
             if (!isAllowed) {
-                consoleLog('WARNING', '"Run in Private Windows" is not set to "Allow", please go to about:addons and allow it to enables us change proxy settings.');
+                consoleLog('WARNING', '"Run in Private Windows" is set to "Don\'t Allow", please go to about:addons and allow it to enable us change proxy settings.');
+            } else {
+                consoleLog('DEBUG', 'OK. "Run in Private Windows" is set to "Allow", as it should be.');
             }
         })
     }
@@ -87,9 +89,16 @@
         consoleLog('DEBUG', 'Entering add-on initialization.');
         checkIncognitoAccess();
         browser.browserAction.onClicked.addListener(toggleSocksProxy);
-        browser.proxy.settings.get({}).then((proxySettings) => {
-            browser.storage.local.set({originalProxySettings: proxySettings.value});
-        });        
+        browser.storage.local.get().then((localStorageData) => {
+            consoleLog('DEBUG', { msg: 'Local storage content:', localStorageData: localStorageData });
+            // No need to override original proxy settings if already set.
+            if (!localStorageData.originalProxySettings) {
+                consoleLog('DEBUG','No default config for Disabled mode, storing current browser proxy settings.');
+                browser.proxy.settings.get({}).then((proxySettings) => {
+                    browser.storage.local.set({ originalProxySettings: proxySettings.value }).then(() => { consoleLog('DEBUG', 'Successfully stored originalProxySettings.'); }, console.error);
+                });
+            }
+        });      
         consoleLog('DEBUG', 'Add-on initialization completed.');
     }
     
