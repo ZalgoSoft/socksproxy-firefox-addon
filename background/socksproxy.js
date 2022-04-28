@@ -12,12 +12,12 @@
     
     const states = {
         enabled: {
-            title: 'SOCKS - Enabled',
+            title: browser.i18n.getMessage('enabledTitle'),
             icon: 'icons/socks-enabled.svg',
             storageName: 'socksSettings'
         },
         disabled: {
-            title: 'SOCKS - Disabled',
+            title: browser.i18n.getMessage('disabledTitle'),
             icon: 'icons/socks-disabled.svg',
             storageName: 'originalProxySettings'
         }
