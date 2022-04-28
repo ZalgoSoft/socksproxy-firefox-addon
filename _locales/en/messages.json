@@ -1,6 +1,6 @@
 {
   "extensionDescription": {
-    "message": "Socks proxying made easy. Compatible with SSH tunneling.",
+    "message": "Socks proxying made easy. Compatible with SSH tunneling. Allowing 'Run in Private Windows' below is required to override proxy settings.",
     "description": "Description of the extension."
   },
 

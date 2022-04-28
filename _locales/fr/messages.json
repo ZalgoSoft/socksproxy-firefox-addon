@@ -1,6 +1,6 @@
 {
   "extensionDescription": {
-    "message": "L'utilisation de proxy socks facilitée. Compatible avec les tunnels SSH.",
+    "message": "L'utilisation de proxy socks facilitée. Compatible avec les tunnels SSH. Pour pouvoir écraser les paramètres proxy, merci d'autoriser le paramètre 'Exécution dans les fenêtres privées' ci-dessous.",
     "description": "Description de l'extension."
   },
 

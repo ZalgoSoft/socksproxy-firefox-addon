@@ -72,10 +72,20 @@
         browser.browserAction.setTitle({title: states[newState].title});
         browser.browserAction.setIcon({path: states[newState].icon});    
     }
+
+    /** Checks "Run in Private Windows" is allowed for addon */
+    function checkIncognitoAccess() {
+        browser.extension.isAllowedIncognitoAccess().then((isAllowed) => {
+            if (!isAllowed) {
+                consoleLog('WARNING', '"Run in Private Windows" is not set to "Allow", please go to about:addons and allow it to enables us change proxy settings.');
+            }
+        })
+    }
     
     /** Init the browser action button & stores original proxy settings */
     function initAddon() {
         consoleLog('DEBUG', 'Entering add-on initialization.');
+        checkIncognitoAccess();
         browser.browserAction.onClicked.addListener(toggleSocksProxy);
         browser.proxy.settings.get({}).then((proxySettings) => {
             browser.storage.local.set({originalProxySettings: proxySettings.value});

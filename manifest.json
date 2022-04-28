@@ -1,10 +1,10 @@
 {
   "manifest_version": 2,
   "name": "Socks Proxy",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "__MSG_extensionDescription__",
-  "author": "p1rox",
-  "homepage_url": "https://github.com/dklight/socksproxy-firefox-addon",
+  "author": "wakeuteu",
+  "homepage_url": "https://github.com/wakeuteu/socksproxy-firefox-addon",
   "default_locale": "en",
 
   "icons": {

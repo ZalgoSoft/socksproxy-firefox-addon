@@ -1,6 +1,6 @@
 {
   "extensionDescription": {
-    "message": "Proxy Socks de manera fàcil. Compatible amb tunnels SSH.",
+    "message": "Proxy Socks de manera fàcil. Compatible amb tunnels SSH. Per poder anullar la configuració del proxy, activeu la configuració 'Executar en finestres privades' a sota.",
     "description": "Descripció de l'extensió."
   },
 
