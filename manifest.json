@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Socks Proxy",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "__MSG_extensionDescription__",
   "author": "p1rox",
   "homepage_url": "https://github.com/dklight/socksproxy-firefox-addon",

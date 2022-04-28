@@ -17,9 +17,28 @@
         passthrough: document.querySelector("#passthrough")
     };
 
+    /** Handler for cleaner logging */
+    function consoleLog(logLevel, logContent) {
+        logLevel = logLevel.toUpperCase();
+        switch (logLevel) {
+            case 'DEBUG':
+                debug && console.debug((new Date()).toISOString(), 'socksproxy', logContent);
+                break;
+            case 'WARNING':
+                console.warn((new Date()).toISOString(), 'socksproxy', logContent);
+                break;
+            case 'ERROR':
+                console.error((new Date()).toISOString(), 'socksproxy', logContent);
+                break;
+            default:
+                debug && console.log((new Date()).toISOString(), 'socksproxy', logContent);
+                break;
+        }
+    }
+
     /** Store the currently selected settings using browser.storage.local. */
     function saveSettings() {
-        debug && console.debug("Entering saveSettings.");
+        consoleLog('DEBUG', 'Entering saveSettings.');
         
         let socksSettings = {
             proxyType: 'manual',
@@ -28,17 +47,14 @@
             proxyDNS: formElements.proxyDNS.checked,
             passthrough: formElements.passthrough.value
         };
-        debug && console.debug('settings to be stored:', socksSettings);
-        
-        browser.storage.local.set({socksSettings});
-
-        debug && browser.storage.local.get().then((stored) => {console.debug('local storage: ', stored);});
+        consoleLog('DEBUG', { msg: 'Settings to be stored: ', socksSettings: socksSettings });
+        browser.storage.local.set({socksSettings}).then(() => { consoleLog('DEBUG', 'Successfully stored socks settings.'); }, console.error);
     }
 
     
     /** Load and check to display settings provided by browser.storage.local */
     function loadSettings(storage) {
-        debug && console.debug("Entering loadSettings.", {localStorage: storage});
+        consoleLog('DEBUG', { msg: 'Entering loadSettings. Parameters in subsequent objects.', storage: storage });
         let data = storage.socksSettings;
         // Check if all values exist
         if (data && data.socks && data.socks.split(':').length == 2 && data.socksVersion) {
@@ -48,12 +64,13 @@
             formElements.proxyDNS.checked = data.proxyDNS || false;
             formElements.passthrough.value = data.passthrough || '';
         } else {
-            console.error("Failed to load properties.");
+            consoleLog('WARNING', 'Failed to load properties. Please Save proxy settings.');
         }
     }
 
 	/** Load i18n for options UI */
 	function loadOptionsI18n() {
+        consoleLog('DEBUG', 'Entering loadOptionsI18n.');
 		let capitalizedEltName = '';
 		// Matching names for formElements keys and i18n messages does help
 		for (var eltName in formElements) {
@@ -65,13 +82,14 @@
 	
 	/** JS initialization for options UI */
 	function initOptions() {
+		consoleLog('DEBUG', 'Entering Options initialization.');
 		// Update UI on options page opening (language + values)
 		loadOptionsI18n();
 		browser.storage.local.get().then(loadSettings, console.error);
 		// Save button will actually save or dump error to console
 		document.querySelector("#save").addEventListener("click", saveSettings);
 		// Let debug guy know we initialized options
-		debug && console.debug('Options script initialized.');
+		consoleLog('DEBUG', 'Options script initialized.');
 	}
 	
 	// Run initialization
