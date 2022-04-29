@@ -8,8 +8,6 @@
     
     const debug = true;
     
-    var currentState = 'disabled';
-    
     const states = {
         enabled: {
             title: browser.i18n.getMessage('enabledTitle'),
@@ -45,21 +43,30 @@
     /** Handler for a click on browser action button */
     function toggleSocksProxy() {
         consoleLog('DEBUG', 'Entering toggleSocksProxy.');
-        currentState = (currentState != 'enabled') ? 'enabled' : 'disabled';
-        setProxy(currentState);
+        browser.storage.local.get().then((localStorageData) => {
+            if (localStorageData.socksProxyStatus && localStorageData.socksProxyStatus !== 'enabled') {
+                setProxy('enabled');
+            } else {
+                setProxy('disabled');
+            }
+        });
     }
 
     /** Sets relevant browser proxy settings based on enablement */
-    function setProxy(currentState) {
-        consoleLog('DEBUG', { msg: 'Entering setProxy. Parameters in subsequent objects.', currentState: currentState });
+    function setProxy(newState) {
+        consoleLog('DEBUG', { msg: 'Entering setProxy. Parameters in subsequent objects.', newState: newState });
         browser.storage.local.get().then((storageData) => {
             consoleLog('DEBUG', { msg: 'Local storage content:', storageData: storageData });
-            let proxySettings = storageData[states[currentState].storageName];
-            consoleLog('DEBUG', { msg: 'Proxy settings to be applied:', proxySettings: proxySettings });
-            if (proxySettings && (currentState === 'disabled' || (proxySettings.socks && proxySettings.socksVersion))) {
-                browser.proxy.settings.set({value: proxySettings}).then(() => { 
-                    setStateView(currentState); 
-                });                
+            const newProxySettings = storageData[states[newState].storageName];
+            consoleLog('DEBUG', { msg: 'Proxy settings to be applied:', newProxySettings: newProxySettings });
+            if (newProxySettings && (newState === 'disabled' || (newProxySettings.socks && newProxySettings.socksVersion))) {
+                // We set target proxy settings (socks or original)
+                browser.proxy.settings.set({value: newProxySettings}).then(() => {
+                    // We persist new state in case of shutdown
+                    browser.storage.local.set({socksProxyStatus: newState}).then(() => {
+                        setStateView(newState);
+                    });
+                });
             } else {
                 consoleLog('WARNING', 'No socks settings stored or malformated data, please go & check preferences. (about:addons in address bar)');
             }
@@ -98,7 +105,12 @@
                     browser.storage.local.set({ originalProxySettings: proxySettings.value }).then(() => { consoleLog('DEBUG', 'Successfully stored originalProxySettings.'); }, console.error);
                 });
             }
-        });      
+            if (localStorageData.socksProxyStatus) {
+                setProxy(localStorageData.socksProxyStatus);
+            } else {
+                setProxy('disabled');
+            }
+        });  
         consoleLog('DEBUG', 'Add-on initialization completed.');
     }
     
