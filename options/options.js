@@ -39,7 +39,7 @@
     /** Store the currently selected settings using browser.storage.local. */
     function saveSettings() {
         consoleLog('DEBUG', 'Entering saveSettings.');
-        
+
         let socksSettings = {
             proxyType: 'manual',
             socks: formElements.host.value + ':' + formElements.port.value,
@@ -48,10 +48,10 @@
             passthrough: formElements.passthrough.value
         };
         consoleLog('DEBUG', { msg: 'Settings to be stored: ', socksSettings: socksSettings });
-        browser.storage.local.set({socksSettings}).then(() => { consoleLog('DEBUG', 'Successfully stored socks settings.'); }, console.error);
+        browser.storage.local.set({ socksSettings }).then(() => { consoleLog('DEBUG', 'Successfully stored socks settings.'); }, console.error);
     }
 
-    
+
     /** Load and check to display settings provided by browser.storage.local */
     function loadSettings(storage) {
         consoleLog('DEBUG', { msg: 'Entering loadSettings. Parameters in subsequent objects.', storage: storage });
@@ -68,30 +68,30 @@
         }
     }
 
-	/** Load i18n for options UI */
-	function loadOptionsI18n() {
+    /** Load i18n for options UI */
+    function loadOptionsI18n() {
         consoleLog('DEBUG', 'Entering loadOptionsI18n.');
-		let capitalizedEltName = '';
-		// Matching names for formElements keys and i18n messages does help
-		for (var eltName in formElements) {
-			capitalizedEltName = eltName.charAt(0).toUpperCase() + eltName.slice(1);
-			formElements[eltName].previousSibling.data = browser.i18n.getMessage("options" + capitalizedEltName + "Label");
-		}
-		document.querySelector("#title").textContent = browser.i18n.getMessage("optionsTitle");
-	}
-	
-	/** JS initialization for options UI */
-	function initOptions() {
-		consoleLog('DEBUG', 'Entering Options initialization.');
-		// Update UI on options page opening (language + values)
-		loadOptionsI18n();
-		browser.storage.local.get().then(loadSettings, console.error);
-		// Save button will actually save or dump error to console
-		document.querySelector("#save").addEventListener("click", saveSettings);
-		// Let debug guy know we initialized options
-		consoleLog('DEBUG', 'Options script initialized.');
-	}
-	
-	// Run initialization
-	initOptions();
+        let capitalizedEltName = '';
+        // Matching names for formElements keys and i18n messages does help
+        for (var eltName in formElements) {
+            capitalizedEltName = eltName.charAt(0).toUpperCase() + eltName.slice(1);
+            formElements[eltName].previousSibling.data = browser.i18n.getMessage("options" + capitalizedEltName + "Label");
+        }
+        document.querySelector("#title").textContent = browser.i18n.getMessage("optionsTitle");
+    }
+
+    /** JS initialization for options UI */
+    function initOptions() {
+        consoleLog('DEBUG', 'Entering Options initialization.');
+        // Update UI on options page opening (language + values)
+        loadOptionsI18n();
+        browser.storage.local.get().then(loadSettings, console.error);
+        // Save button will actually save or dump error to console
+        document.querySelector("#save").addEventListener("click", saveSettings);
+        // Let debug guy know we initialized options
+        consoleLog('DEBUG', 'Options script initialized.');
+    }
+
+    // Run initialization
+    initOptions();
 })();

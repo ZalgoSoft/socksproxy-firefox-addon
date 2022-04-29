@@ -1,31 +1,38 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <link rel="stylesheet" href="options.css"/>
-    </head>
-    <body>
-        <form action="#">
-            <h1 id="title"> SOCKS PROXY SETTINGS </h1>
-            <hr>
-            <label for="host">IP or hostname:<input type="text" id="host" name="host" placeholder="ex: 127.0.0.1 or example.com" /></label>
-            <hr>
-            <label for="port">Port:<input type="number" id="port" name="port" placeholder="ex: 1337" /></label>
-            <hr>
-            <label for="version">SOCKS Version:
-                <select id="version" name="version">
-                    <option value="5">SOCKS5</option>
-                    <option value="4">SOCKS4</option>
-                </select>
-            </label>
-            <hr>
-            <label for="proxydns">Proxy DNS (SOCKS5): <input type="checkbox" id="proxydns" name="proxydns" /></label>
-            <hr>
-            <label for="passthrough">No proxy for:<input type="text" id="passthrough" name="passthrough" placeholder="ex: 127.0.0.1, localhost" /></label>
-            <hr>
-            <input type="submit" id="save" name="save" value="Save" />
-        </form>
-        <p>Project forked from <a href="https://github.com/dklight/socksproxy-firefox-addon">dklight's socksproxy-firefox-addon</a></p>
-        <script src="options.js"></script>
-    </body>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="options.css" />
+</head>
+
+<body>
+    <form action="#">
+        <h1 id="title"> SOCKS PROXY SETTINGS </h1>
+        <hr>
+        <label for="host">IP or hostname:
+            <input type="text" id="host" name="host"placeholder="ex: 127.0.0.1 or example.com" />
+        </label>
+        <hr>
+        <label for="port">Port:<input type="number" id="port" name="port" placeholder="ex: 1337" /></label>
+        <hr>
+        <label for="version">SOCKS Version:
+            <select id="version" name="version">
+                <option value="5">SOCKS5</option>
+                <option value="4">SOCKS4</option>
+            </select>
+        </label>
+        <hr>
+        <label for="proxydns">Proxy DNS (SOCKS5): <input type="checkbox" id="proxydns" name="proxydns" /></label>
+        <hr>
+        <label for="passthrough">No proxy for:<input type="text" id="passthrough" name="passthrough"
+                placeholder="ex: 127.0.0.1, localhost" /></label>
+        <hr>
+        <input type="submit" id="save" name="save" value="Save" />
+    </form>
+    <p>Project forked from <a href="https://github.com/dklight/socksproxy-firefox-addon">dklight's
+            socksproxy-firefox-addon</a></p>
+    <script src="options.js"></script>
+</body>
+
 </html>

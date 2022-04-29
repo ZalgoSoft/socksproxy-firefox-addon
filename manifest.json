@@ -6,32 +6,32 @@
   "author": "wakeuteu",
   "homepage_url": "https://github.com/wakeuteu/socksproxy-firefox-addon",
   "default_locale": "en",
-
   "icons": {
     "48": "icons/socks-icon.svg",
     "96": "icons/socks-icon.svg"
   },
-
   "browser_specific_settings": {
     "gecko": {
       "strict_min_version": "91.1.0"
     }
   },
-
   "background": {
-    "scripts": ["background/socksproxy.js"]
+    "scripts": [
+      "background/socksproxy.js"
+    ]
   },
-
   "browser_action": {
     "browser_style": true,
     "default_icon": "icons/socks-disabled.svg",
     "default_title": "__MSG_disabledTitle__"
   },
-
   "options_ui": {
     "page": "options/options.html",
     "browser_style": true
   },
-
-  "permissions": ["proxy", "browserSettings", "storage"]
+  "permissions": [
+    "proxy",
+    "browserSettings",
+    "storage"
+  ]
 }

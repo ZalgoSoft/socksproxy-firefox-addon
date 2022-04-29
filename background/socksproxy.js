@@ -3,11 +3,11 @@
  * @author Anthony Sabathier <sabathiera@gmail.com>
  */
 
-(function() {
+(function () {
     "use strict";
-    
+
     const debug = true;
-    
+
     const states = {
         enabled: {
             title: browser.i18n.getMessage('enabledTitle'),
@@ -20,7 +20,7 @@
             storageName: 'originalProxySettings'
         }
     };
-    
+
     /** Handler for cleaner logging */
     function consoleLog(logLevel, logContent) {
         logLevel = logLevel.toUpperCase();
@@ -61,9 +61,9 @@
             consoleLog('DEBUG', { msg: 'Proxy settings to be applied:', newProxySettings: newProxySettings });
             if (newProxySettings && (newState === 'disabled' || (newProxySettings.socks && newProxySettings.socksVersion))) {
                 // We set target proxy settings (socks or original)
-                browser.proxy.settings.set({value: newProxySettings}).then(() => {
+                browser.proxy.settings.set({ value: newProxySettings }).then(() => {
                     // We persist new state in case of shutdown
-                    browser.storage.local.set({socksProxyStatus: newState}).then(() => {
+                    browser.storage.local.set({ socksProxyStatus: newState }).then(() => {
                         setStateView(newState);
                     });
                 });
@@ -72,12 +72,12 @@
             }
         });
     }
-    
+
     /** Set style for browser action button */
     function setStateView(newState) {
         consoleLog('DEBUG', { msg: 'Entering setStateView. Parameters in subsequent objects.', newState: newState });
-        browser.browserAction.setTitle({title: states[newState].title});
-        browser.browserAction.setIcon({path: states[newState].icon});    
+        browser.browserAction.setTitle({ title: states[newState].title });
+        browser.browserAction.setIcon({ path: states[newState].icon });
     }
 
     /** Checks "Run in Private Windows" is allowed for addon */
@@ -90,7 +90,7 @@
             }
         })
     }
-    
+
     /** Init the browser action button & stores original proxy settings */
     function initAddon() {
         consoleLog('DEBUG', 'Entering add-on initialization.');
@@ -100,7 +100,7 @@
             consoleLog('DEBUG', { msg: 'Local storage content:', localStorageData: localStorageData });
             // No need to override original proxy settings if already set.
             if (!localStorageData.originalProxySettings) {
-                consoleLog('DEBUG','No default config for Disabled mode, storing current browser proxy settings.');
+                consoleLog('DEBUG', 'No default config for Disabled mode, storing current browser proxy settings.');
                 browser.proxy.settings.get({}).then((proxySettings) => {
                     browser.storage.local.set({ originalProxySettings: proxySettings.value }).then(() => { consoleLog('DEBUG', 'Successfully stored originalProxySettings.'); }, console.error);
                 });
@@ -110,10 +110,10 @@
             } else {
                 setProxy('disabled');
             }
-        });  
+        });
         consoleLog('DEBUG', 'Add-on initialization completed.');
     }
-    
+
     // Run initialization
     initAddon();
 })();
