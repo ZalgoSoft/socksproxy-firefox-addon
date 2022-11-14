@@ -42,5 +42,10 @@
   "optionsPassthroughLabel": {
     "message": "No proxy for:",
     "description": "Options screen label - passthrough hostnames and IP addresses"
+  },
+
+  "optionsReloadTabLabel": {
+    "message": "Enable tab reload on toggle:",
+    "description": "Options screen label - enable/disable tab reload when setting proxy"
   }
 }

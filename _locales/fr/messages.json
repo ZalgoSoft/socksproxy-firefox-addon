@@ -42,5 +42,10 @@
   "optionsPassthroughLabel": {
     "message": "Pas de proxy pour :",
     "description": "Label Interface Options - hôtes ou IP pour lesquels pas de proxy."
+  },
+
+  "optionsReloadTabLabel": {
+    "message": "Rafraîchir l'onglet automatiquement :",
+    "description": "Label Interface Options - active/désactive le rafraîchissement automatique de l'onglet actuel."
   }
 }

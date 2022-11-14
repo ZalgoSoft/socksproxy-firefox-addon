@@ -1,5 +1,8 @@
 # 1.2.1 (2022-11-14)
 
+## New
+* Added an option to automatically reload active tab when clicking action button.
+
 # [1.2.0](https://github.com/wakeuteu/socksproxy-firefox-addon/releases/tag/v1.2.0) (2022-04-29)
 Version published on https://addons.mozilla.org/
 

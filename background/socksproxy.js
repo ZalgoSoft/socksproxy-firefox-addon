@@ -65,6 +65,8 @@
                     // We persist new state in case of shutdown
                     browser.storage.local.set({ socksProxyStatus: newState }).then(() => {
                         setStateView(newState);
+                        // Everything went fine, we can refresh current tab.
+                        reloadActiveTab(storageData);
                     });
                 });
             } else {
@@ -91,6 +93,16 @@
         })
     }
 
+    /** Refresh active tab if relevant option is true */
+    function reloadActiveTab(localStorageData) {
+        if (localStorageData.socksSettings && localStorageData.socksSettings.reloadTab) {
+            // Refreshing current tab.
+            browser.tabs.reload().then(
+                () => { consoleLog('DEBUG', 'Current tab reloaded successfuly'); }, 
+                (errorMsg) => { consoleLog('ERROR', 'Could not reload tab. Error: ' + errorMsg); }
+            );
+        }
+    }
     /** Init the browser action button & stores original proxy settings */
     function initAddon() {
         consoleLog('DEBUG', 'Entering add-on initialization.');
