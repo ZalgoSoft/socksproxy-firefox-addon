@@ -1,3 +1,5 @@
+# 1.2.1 (2022-11-14)
+
 # [1.2.0](https://github.com/wakeuteu/socksproxy-firefox-addon/releases/tag/v1.2.0) (2022-04-29)
 Version published on https://addons.mozilla.org/
 
