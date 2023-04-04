@@ -47,5 +47,15 @@
   "optionsReloadTabLabel": {
     "message": "Rafraîchir l'onglet automatiquement :",
     "description": "Label Interface Options - active/désactive le rafraîchissement automatique de l'onglet actuel."
+  },
+
+  "optionsShowIPV4Label": {
+    "message": "Afficher l'IP publique (V4): ",
+    "description": "Label Interface Options - active/désactive la récupération de l'IPV4 (via https://api.ipify.org)"
+  },
+
+  "optionsShowIPV6Label": {
+    "message": "Afficher l'IP publique (V4/V6): ",
+    "description": "Label Interface Options - active/désactive la récupération de l'IPV4/IPV6  (via https://api64.ipify.org)"
   }
 }

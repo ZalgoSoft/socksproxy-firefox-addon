@@ -47,5 +47,15 @@
   "optionsReloadTabLabel": {
     "message": "Enable tab reload on toggle:",
     "description": "Options screen label - enable/disable tab reload when setting proxy"
+  },
+
+  "optionsShowIPV4Label": {
+    "message": "Show public IP (V4): ",
+    "description": "Options screen label - enable/disable IP4 retrieval (via https://api.ipify.org)"
+  },
+
+  "optionsShowIPV6Label": {
+    "message": "Show public IP (V4/V6): ",
+    "description": "Options screen label - enable/disable IPv4/v6 retrieval (via https://api64.ipify.org)"
   }
 }

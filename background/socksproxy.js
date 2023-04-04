@@ -67,6 +67,8 @@
                         setStateView(newState);
                         // Everything went fine, we can refresh current tab.
                         reloadActiveTab(storageData);
+                        // We can also retrieve current IP.
+                        getCurrentIP(storageData);
                     });
                 });
             } else {
@@ -95,6 +97,7 @@
 
     /** Refresh active tab if relevant option is true */
     function reloadActiveTab(localStorageData) {
+        consoleLog('DEBUG', { msg: 'Entering reloadActiveTab. Parameters in subsequent objects.', localStorageData: localStorageData });
         if (localStorageData.socksSettings && localStorageData.socksSettings.reloadTab) {
             // Refreshing current tab.
             browser.tabs.reload().then(
@@ -103,6 +106,49 @@
             );
         }
     }
+
+    /** Refresh active tab if relevant option is true */
+    function getCurrentIP(localStorageData) {
+        consoleLog('DEBUG', { msg: 'Entering getCurrentIP. Parameters in subsequent objects.', localStorageData: localStorageData });
+        if (!localStorageData.socksSettings || 
+            (!localStorageData.socksSettings.showIPV4 
+                && !localStorageData.socksSettings.showIPV6)) {
+            return;
+        }
+        let ip4Promise = Promise.resolve();
+        let ip6Promise = Promise.resolve();
+        if (localStorageData.socksSettings.showIPV4) {
+            ip4Promise = fetch(new Request('https://api.ipify.org/?format=json'))
+                .then(response4 => response4.json())
+                .then(data4 => {
+                    if (data4 && data4.ip) {
+                        console.log({msg: 'getCurrentIP - Retrieved IPV4.', ipv4: data4.ip});
+                        return data4.ip
+                    } else {
+                        throw 'API responded but message is not valid: ' + JSON.stringify(data4);
+                    }
+                }).catch(errorMsg => consoleLog('ERROR', 'Could not retrieve IP4. Error: ' + errorMsg));
+        }
+        if (localStorageData.socksSettings.showIPV6) {
+            ip6Promise = fetch(new Request('https://api64.ipify.org/?format=json'))
+                .then(response6 => response6.json())
+                .then(data6 => {
+                    if (data6 && data6.ip) {
+                        console.log({msg: 'getCurrentIP - Retrieved IPV4/IPV6.', ipv6: data6.ip});
+                        return data6.ip
+                    } else {
+                        throw 'API responded but message is not valid: ' + JSON.stringify(data6);
+                    }
+                }).catch(errorMsg => consoleLog('ERROR', 'Could not retrieve IP4. Error: ' + errorMsg));
+        }
+        Promise.all([ip4Promise, ip6Promise]).then(ipPromises => {
+            browser.browserAction.getTitle({})
+            .then(currentTitle => {
+                browser.browserAction.setTitle({ title: [currentTitle.split('\n')[0]].concat(ipPromises).join('\n') });
+             });
+        });
+    }
+
     /** Init the browser action button & stores original proxy settings */
     function initAddon() {
         consoleLog('DEBUG', 'Entering add-on initialization.');

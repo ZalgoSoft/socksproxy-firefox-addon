@@ -8,7 +8,7 @@ Socks proxying and SSH tunneling made easy!
 
 Configure one time your socks proxy settings and enable/disable it with a single click!
 
-Go to your add-ons manager to configure it.
+Go to your add-ons manager to configure it. (requires private window authorization)
 
 ## How to contribute
 
@@ -26,4 +26,6 @@ See [LICENSE.md](./LICENSE.md)
 
 Icon made by [Freepik](http://www.freepik.com) from [www.flaticon.com](http://www.flaticon.com).
 
-Project forked from [https://github.com/dklight/socksproxy-firefox-addon](https://github.com/dklight/socksproxy-firefox-addon)
+Public IP Retrieval system using [ipify API](https://www.ipify.org/). [See their GitHub repo](https://github.com/rdegges/ipify-api).
+
+Project forked from [https://github.com/dklight/socksproxy-firefox-addon](https://github.com/dklight/socksproxy-firefox-addon).

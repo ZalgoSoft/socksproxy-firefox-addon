@@ -15,7 +15,9 @@
         version: document.querySelector("#version"),
         proxyDNS: document.querySelector("#proxydns"),
         passthrough: document.querySelector("#passthrough"),
-        reloadTab: document.querySelector("#reloadtab")
+        reloadTab: document.querySelector("#reloadtab"),
+        showIPV4: document.querySelector("#showipv4"),
+        showIPV6: document.querySelector("#showipv6")
     };
 
     /** Handler for cleaner logging */
@@ -47,7 +49,9 @@
             socksVersion: parseInt(formElements.version.value),
             proxyDNS: formElements.proxyDNS.checked,
             passthrough: formElements.passthrough.value,
-            reloadTab: formElements.reloadTab.checked
+            reloadTab: formElements.reloadTab.checked,
+            showIPV4: formElements.showIPV4.checked,
+            showIPV6: formElements.showIPV6.checked,
         };
         consoleLog('DEBUG', { msg: 'Settings to be stored: ', socksSettings: socksSettings });
         browser.storage.local.set({ socksSettings }).then(() => { consoleLog('DEBUG', 'Successfully stored socks settings.'); }, console.error);
@@ -66,6 +70,8 @@
             formElements.proxyDNS.checked = data.proxyDNS || false;
             formElements.passthrough.value = data.passthrough || '';
             formElements.reloadTab.checked = data.reloadTab || false;
+            formElements.showIPV4.checked = data.showIPV4 || false;
+            formElements.showIPV6.checked = data.showIPV6 || false;
         } else {
             consoleLog('WARNING', 'Failed to load properties. Please Save proxy settings.');
         }
