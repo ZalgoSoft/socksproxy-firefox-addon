@@ -1,0 +1,61 @@
+{
+  "extensionDescription": {
+    "message": "Простая настройка прокси SOCKS. Совместимо с SSH-туннелированием. Для переопределения настроек прокси требуется включить 'Запуск в приватных окнах' ниже.",
+    "description": "Описание расширения."
+  },
+
+  "enabledTitle": {
+    "message": "SOCKS - Включено",
+    "description": "Кнопка действия браузера - заголовок при включении."
+  },
+
+  "disabledTitle": {
+    "message": "SOCKS - Отключено",
+    "description": "Кнопка действия браузера - заголовок при отключении."
+  },
+
+  "optionsTitle": {
+    "message": "НАСТРОЙКИ SOCKS-ПРОКСИ",
+    "description": "Экран настроек - заголовок."
+  },
+
+  "optionsHostLabel": {
+    "message": "IP или имя хоста:",
+    "description": "Метка на экране настроек - имя хоста или IP-адрес"
+  },
+
+  "optionsPortLabel": {
+    "message": "Порт:",
+    "description": "Метка на экране настроек - номер порта"
+  },
+
+  "optionsVersionLabel": {
+    "message": "Версия SOCKS:",
+    "description": "Метка на экране настроек - версия SOCKS"
+  },
+
+  "optionsProxyDNSLabel": {
+    "message": "Проксирование DNS (SOCKS5):",
+    "description": "Метка на экране настроек - активация проксирования DNS (только SOCKS5)"
+  },
+
+  "optionsPassthroughLabel": {
+    "message": "Без прокси для:",
+    "description": "Метка на экране настроек - имена хостов и IP-адреса для прямого подключения"
+  },
+
+  "optionsReloadTabLabel": {
+    "message": "Включить перезагрузку вкладки при переключении:",
+    "description": "Метка на экране настроек - включение/отключение перезагрузки вкладки при настройке прокси"
+  },
+
+  "optionsShowIPV4Label": {
+    "message": "Показать публичный IP (V4): ",
+    "description": "Метка на экране настроек - включение/отключение получения IP4 (через https://api.ipify.org)"
+  },
+
+  "optionsShowIPV6Label": {
+    "message": "Показать публичный IP (V4/V6): ",
+    "description": "Метка на экране настроек - включение/отключение получения IPv4/v6 (через https://api64.ipify.org)"
+  }
+}

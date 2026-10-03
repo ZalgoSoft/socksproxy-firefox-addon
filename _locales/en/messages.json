@@ -57,5 +57,8 @@
   "optionsShowIPV6Label": {
     "message": "Show public IP (V4/V6): ",
     "description": "Options screen label - enable/disable IPv4/v6 retrieval (via https://api64.ipify.org)"
+  },
+  "optionsVersionHint": {
+    "message": "Note: Firefox selects SOCKS4/SOCKS5 automatically for per-tab routing."
   }
 }

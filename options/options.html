@@ -4,41 +4,42 @@
 <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="options.css" />
+    <title>SOCKS PROXY SETTINGS</title>
 </head>
 
 <body>
-    <form action="#">
-        <h1 id="title"> SOCKS PROXY SETTINGS </h1>
-        <hr>
-        <label for="host">IP or hostname:
-            <input type="text" id="host" name="host"placeholder="ex: 127.0.0.1 or example.com" />
-        </label>
-        <hr>
-        <label for="port">Port:<input type="number" id="port" name="port" placeholder="ex: 1337" /></label>
-        <hr>
-        <label for="version">SOCKS Version:
-            <select id="version" name="version">
-                <option value="5">SOCKS5</option>
-                <option value="4">SOCKS4</option>
-            </select>
-        </label>
-        <hr>
-        <label for="proxydns">Proxy DNS (SOCKS5): <input type="checkbox" id="proxydns" name="proxydns" /></label>
-        <hr>
-        <label for="passthrough">No proxy for:<input type="text" id="passthrough" name="passthrough"
-                placeholder="ex: 127.0.0.1, localhost" /></label>
-        <hr>
-        <label for="reloadtab">Reload tab when toggle proxy: <input type="checkbox" id="reloadtab" name="reloadtab" /></label>
-        <hr>
-        <label for="showipv4">Show public IP (V4): <input type="checkbox" id="showipv4" name="showipv4" /></label>
-        <hr>
-        <label for="showipv6">Show public IP (V4/V6): <input type="checkbox" id="showipv6" name="showipv6" /></label>
-        <hr>
-        <input type="submit" id="save" name="save" value="Save" />
-    </form>
-    <p>Project forked from <a href="https://github.com/dklight/socksproxy-firefox-addon">dklight's
-            socksproxy-firefox-addon</a></p>
-    <script src="options.js"></script>
+    <h1 id="title">SOCKS PROXY SETTINGS</h1>
+    <hr>
+    <label for="host">IP or hostname:
+        <input type="text" id="host" name="host" placeholder="ex: 127.0.0.1 or example.com" />
+    </label>
+    <hr>
+    <label for="port">Port:<input type="number" id="port" name="port" placeholder="ex: 1337" min="1" max="65535" /></label>
+    <hr>
+    <label for="version">SOCKS Version:
+        <select id="version" name="version">
+            <option value="5">SOCKS5</option>
+            <option value="4">SOCKS4</option>
+        </select>
+    </label>
+    <p class="hint" id="version-hint"></p>
+    <hr>
+    <label for="proxydns">Proxy DNS (SOCKS5):<input type="checkbox" id="proxydns" name="proxydns" /></label>
+    <hr>
+    <label for="reloadtab">Reload tab on toggle:<input type="checkbox" id="reloadtab" name="reloadtab" /></label>
+    <hr>
+    <label for="showipv4">Show public IP (V4):<input type="checkbox" id="showipv4" name="showipv4" /></label>
+    <hr>
+    <label for="showipv6">Show public IP (V4/V6):<input type="checkbox" id="showipv6" name="showipv6" /></label>
+    <hr>
+    <button type="button" id="save" name="save">Save</button>
+    <p class="hint">Proxy is applied <strong>per tab</strong>: click the toolbar icon to
+        enable it for the current tab only. Changes here affect the next time you enable
+        the proxy.
+    </p><p>Project forked from<br/>
+        <a href="https://github.com/dklight/socksproxy-firefox-addon">dklight's socksproxy-firefox-addon</a><br/>
+        <a href="https://github.com/wakeuteu/socksproxy-firefox-addon">wakeuteu's socksproxy-firefox-addon</a></p>
+        <script src="options.js"></script>
 </body>
 
 </html>

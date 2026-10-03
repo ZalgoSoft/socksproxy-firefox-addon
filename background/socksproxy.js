@@ -1,24 +1,20 @@
 /**
- * @file Main controller file for the addon
+ * @file Main controller file for the addon (per-tab mode)
  * @author Anthony Sabathier <sabathiera@gmail.com>
+ * @author wakeuteu
+ * @author ZalgoSoft
  */
 
-(function () {
+(function() {
     "use strict";
 
     const debug = true;
 
-    const states = {
-        enabled: {
-            title: browser.i18n.getMessage('enabledTitle'),
-            icon: 'icons/socks-enabled.svg',
-            storageName: 'socksSettings'
-        },
-        disabled: {
-            title: browser.i18n.getMessage('disabledTitle'),
-            icon: 'icons/socks-disabled.svg',
-            storageName: 'originalProxySettings'
-        }
+    /** tabId -> { type, host, port, proxyDNS, username?, password? } */
+    const tabProxies = new Map();
+    const icons = {
+        enabled: 'icons/socks-enabled.svg',
+        disabled: 'icons/socks-disabled.svg'
     };
 
     /** Handler for cleaner logging */
@@ -39,136 +35,222 @@
                 break;
         }
     }
-
-    /** Handler for a click on browser action button */
-    function toggleSocksProxy() {
-        consoleLog('DEBUG', 'Entering toggleSocksProxy.');
-        browser.storage.local.get().then((localStorageData) => {
-            if (localStorageData.socksProxyStatus && localStorageData.socksProxyStatus !== 'enabled') {
-                setProxy('enabled');
-            } else {
-                setProxy('disabled');
+    async function loadTabState() {
+        try {
+            const stored = await browser.storage.session.get('tabProxies');
+            const saved = stored.tabProxies || {};
+            for (const [tabId, cfg] of Object.entries(saved)) {
+                tabProxies.set(Number(tabId), cfg);
             }
-        });
+            consoleLog('DEBUG', {
+                msg: 'Loaded per-tab state.',
+                size: tabProxies.size
+            });
+        } catch (e) {
+            consoleLog('ERROR', 'Failed to load tab state: ' + e);
+        }
     }
-
-    /** Sets relevant browser proxy settings based on enablement */
-    function setProxy(newState) {
-        consoleLog('DEBUG', { msg: 'Entering setProxy. Parameters in subsequent objects.', newState: newState });
-        browser.storage.local.get().then((storageData) => {
-            consoleLog('DEBUG', { msg: 'Local storage content:', storageData: storageData });
-            const newProxySettings = storageData[states[newState].storageName];
-            consoleLog('DEBUG', { msg: 'Proxy settings to be applied:', newProxySettings: newProxySettings });
-            if (newProxySettings && (newState === 'disabled' || (newProxySettings.socks && newProxySettings.socksVersion))) {
-                // We set target proxy settings (socks or original)
-                browser.proxy.settings.set({ value: newProxySettings }).then(() => {
-                    // We persist new state in case of shutdown
-                    browser.storage.local.set({ socksProxyStatus: newState }).then(() => {
-                        setStateView(newState);
-                        // Everything went fine, we can refresh current tab.
-                        reloadActiveTab(storageData);
-                        // We can also retrieve current IP.
-                        getCurrentIP(storageData);
-                    });
-                });
-            } else {
-                consoleLog('WARNING', 'No socks settings stored or malformated data, please go & check preferences. (about:addons in address bar)');
+    async function saveTabState() {
+        const obj = {};
+        for (const [tabId, cfg] of tabProxies) obj[tabId] = cfg;
+        try {
+            await browser.storage.session.set({
+                tabProxies: obj
+            });
+        } catch (e) {
+            consoleLog('ERROR', 'Failed to save tab state: ' + e);
+        }
+    }
+    browser.proxy.onRequest.addListener(
+        (request) => {
+            // Requests outside a tab (browser internals, updates, telemetry)
+            if (request.tabId < 0) {
+                return {
+                    type: 'direct'
+                };
             }
+            const cfg = tabProxies.get(request.tabId);
+            if (!cfg) {
+                return {
+                    type: 'direct'
+                };
+            }
+            return cfg;
+        }, {
+            urls: ['<all_urls>']
+        }
+    );
+    async function buildProxyConfigFromOptions() {
+        const data = await browser.storage.local.get('socksSettings');
+        const s = data.socksSettings;
+        if (!s || !s.socks || s.socks.split(':').length !== 2 || !s.socksVersion) {
+            consoleLog('WARNING', 'No socks settings stored or malformed data. Open the options page.');
+            return null;
+        }
+        const [host, port] = s.socks.split(':');
+        const cfg = {
+            type: 'socks',
+            host: host,
+            port: parseInt(port, 10),
+            proxyDNS: !!s.proxyDNS
+            // socksVersion игнорируется proxy.onRequest — Firefox сам определяет
+            // версию по возможности; для SOCKS5 достаточно type:'socks'.
+        };
+        return cfg;
+    }
+    async function setStateView(tabId, enabled) {
+        const icon = enabled ? icons.enabled : icons.disabled;
+        const titleKey = enabled ? 'enabledTitle' : 'disabledTitle';
+        try {
+            await browser.browserAction.setIcon({
+                tabId: tabId,
+                path: icon
+            });
+            await browser.browserAction.setTitle({
+                tabId: tabId,
+                title: browser.i18n.getMessage(titleKey)
+            });
+        } catch (e) {
+            // Tab may have been closed in the meantime — ignore.
+        }
+    }
+
+    async function refreshAllTabIcons() {
+        const tabs = await browser.tabs.query({});
+        for (const tab of tabs) {
+            await setStateView(tab.id, tabProxies.has(tab.id));
+        }
+    }
+
+    async function toggleSocksProxy() {
+        const [tab] = await browser.tabs.query({
+            active: true,
+            currentWindow: true
         });
-    }
+        if (!tab) return;
 
-    /** Set style for browser action button */
-    function setStateView(newState) {
-        consoleLog('DEBUG', { msg: 'Entering setStateView. Parameters in subsequent objects.', newState: newState });
-        browser.browserAction.setTitle({ title: states[newState].title });
-        browser.browserAction.setIcon({ path: states[newState].icon });
-    }
+        if (tabProxies.has(tab.id)) {
+            consoleLog('DEBUG', 'Disabling proxy for tab ' + tab.id);
+            tabProxies.delete(tab.id);
+            await saveTabState();
+            await setStateView(tab.id, false);
+            await maybeReloadTab(tab.id);
+            return;
+        }
 
-    /** Checks "Run in Private Windows" is allowed for addon */
+        const cfg = await buildProxyConfigFromOptions();
+        if (!cfg) {
+            consoleLog('WARNING', 'Cannot enable: no valid socks settings.');
+            return;
+        }
+        consoleLog('DEBUG', {
+            msg: 'Enabling proxy for tab ' + tab.id,
+            cfg: cfg
+        });
+        tabProxies.set(tab.id, cfg);
+        await saveTabState();
+        await setStateView(tab.id, true);
+        await maybeReloadTab(tab.id);
+    }
+    async function maybeReloadTab(tabId) {
+        const data = await browser.storage.local.get('socksSettings');
+        if (data.socksSettings && data.socksSettings.reloadTab) {
+            try {
+                await browser.tabs.reload(tabId);
+            } catch (e) {
+                consoleLog('ERROR', 'Could not reload tab ' + tabId + ': ' + e);
+            }
+        }
+    }
+    async function getCurrentIP(tabId) {
+        const data = await browser.storage.local.get('socksSettings');
+        const s = data.socksSettings;
+        if (!s || (!s.showIPV4 && !s.showIPV6)) return;
+
+        const tasks = [];
+        if (s.showIPV4) {
+            tasks.push(
+                fetch(new Request('https://api.ipify.org/?format=json'))
+                .then(r => r.json())
+                .then(d => d && d.ip ? d.ip : Promise.reject('Invalid IPv4 response'))
+                .catch(err => {
+                    consoleLog('ERROR', 'IPv4 fetch failed: ' + err);
+                    return null;
+                })
+            );
+        }
+        if (s.showIPV6) {
+            tasks.push(
+                fetch(new Request('https://api64.ipify.org/?format=json'))
+                .then(r => r.json())
+                .then(d => d && d.ip ? d.ip : Promise.reject('Invalid IPv6 response'))
+                .catch(err => {
+                    consoleLog('ERROR', 'IPv6 fetch failed: ' + err);
+                    return null;
+                })
+            );
+        }
+        const ips = (await Promise.all(tasks)).filter(Boolean);
+        if (!ips.length) return;
+        try {
+            const currentTitle = await browser.browserAction.getTitle({
+                tabId: tabId
+            });
+            const base = currentTitle.split('\n')[0];
+            await browser.browserAction.setTitle({
+                tabId: tabId,
+                title: [base].concat(ips).join('\n')
+            });
+        } catch (e) {
+            consoleLog('ERROR', 'Could not update title: ' + e);
+        }
+    }
+    browser.tabs.onActivated.addListener(async ({
+        tabId
+    }) => {
+        await setStateView(tabId, tabProxies.has(tabId));
+    });
+
+    browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+        if (changeInfo.status === 'complete') {
+            await setStateView(tabId, tabProxies.has(tabId));
+            if (tabProxies.has(tabId)) getCurrentIP(tabId);
+        }
+    });
+    browser.tabs.onRemoved.addListener(async (tabId) => {
+        if (tabProxies.delete(tabId)) {
+            await saveTabState();
+        }
+    });
+
     function checkIncognitoAccess() {
         browser.extension.isAllowedIncognitoAccess().then((isAllowed) => {
             if (!isAllowed) {
-                consoleLog('WARNING', '"Run in Private Windows" is set to "Don\'t Allow", please go to about:addons and allow it to enable us change proxy settings.');
+                consoleLog('WARNING', '"Run in Private Windows" is disabled; per-tab proxy will not apply in private windows.');
             } else {
-                consoleLog('DEBUG', 'OK. "Run in Private Windows" is set to "Allow", as it should be.');
+                consoleLog('DEBUG', 'Incognito access OK.');
             }
-        })
-    }
-
-    /** Refresh active tab if relevant option is true */
-    function reloadActiveTab(localStorageData) {
-        consoleLog('DEBUG', { msg: 'Entering reloadActiveTab. Parameters in subsequent objects.', localStorageData: localStorageData });
-        if (localStorageData.socksSettings && localStorageData.socksSettings.reloadTab) {
-            // Refreshing current tab.
-            browser.tabs.reload().then(
-                () => { consoleLog('DEBUG', 'Current tab reloaded successfuly'); }, 
-                (errorMsg) => { consoleLog('ERROR', 'Could not reload tab. Error: ' + errorMsg); }
-            );
-        }
-    }
-
-    /** Refresh active tab if relevant option is true */
-    function getCurrentIP(localStorageData) {
-        consoleLog('DEBUG', { msg: 'Entering getCurrentIP. Parameters in subsequent objects.', localStorageData: localStorageData });
-        if (!localStorageData.socksSettings || 
-            (!localStorageData.socksSettings.showIPV4 
-                && !localStorageData.socksSettings.showIPV6)) {
-            return;
-        }
-        let ip4Promise = Promise.resolve();
-        let ip6Promise = Promise.resolve();
-        if (localStorageData.socksSettings.showIPV4) {
-            ip4Promise = fetch(new Request('https://api.ipify.org/?format=json'))
-                .then(response4 => response4.json())
-                .then(data4 => {
-                    if (data4 && data4.ip) {
-                        console.log({msg: 'getCurrentIP - Retrieved IPV4.', ipv4: data4.ip});
-                        return data4.ip
-                    } else {
-                        throw 'API responded but message is not valid: ' + JSON.stringify(data4);
-                    }
-                }).catch(errorMsg => consoleLog('ERROR', 'Could not retrieve IP4. Error: ' + errorMsg));
-        }
-        if (localStorageData.socksSettings.showIPV6) {
-            ip6Promise = fetch(new Request('https://api64.ipify.org/?format=json'))
-                .then(response6 => response6.json())
-                .then(data6 => {
-                    if (data6 && data6.ip) {
-                        console.log({msg: 'getCurrentIP - Retrieved IPV4/IPV6.', ipv6: data6.ip});
-                        return data6.ip
-                    } else {
-                        throw 'API responded but message is not valid: ' + JSON.stringify(data6);
-                    }
-                }).catch(errorMsg => consoleLog('ERROR', 'Could not retrieve IP4. Error: ' + errorMsg));
-        }
-        Promise.all([ip4Promise, ip6Promise]).then(ipPromises => {
-            browser.browserAction.getTitle({})
-            .then(currentTitle => {
-                browser.browserAction.setTitle({ title: [currentTitle.split('\n')[0]].concat(ipPromises).join('\n') });
-             });
         });
     }
-
-    /** Init the browser action button & stores original proxy settings */
-    function initAddon() {
+    browser.proxy.onError.addListener((error) => {
+        console.error("proxy.onError:", error.message);
+        console.error("ProxyInfo, вызвавший ошибку:", error);
+    });
+    async function initAddon() {
         consoleLog('DEBUG', 'Entering add-on initialization.');
         checkIncognitoAccess();
+
         browser.browserAction.onClicked.addListener(toggleSocksProxy);
-        browser.storage.local.get().then((localStorageData) => {
-            consoleLog('DEBUG', { msg: 'Local storage content:', localStorageData: localStorageData });
-            // No need to override original proxy settings if already set.
-            if (!localStorageData.originalProxySettings) {
-                consoleLog('DEBUG', 'No default config for Disabled mode, storing current browser proxy settings.');
-                browser.proxy.settings.get({}).then((proxySettings) => {
-                    browser.storage.local.set({ originalProxySettings: proxySettings.value }).then(() => { consoleLog('DEBUG', 'Successfully stored originalProxySettings.'); }, console.error);
-                });
-            }
-            if (localStorageData.socksProxyStatus) {
-                setProxy(localStorageData.socksProxyStatus);
-            } else {
-                setProxy('disabled');
-            }
-        });
+        await loadTabState();
+        // Legacy cleanup: if an older version left global proxy settings,
+        // clear them so proxy.onRequest takes over.
+        try {
+            await browser.proxy.settings.clear({});
+        } catch (e) {
+            /* ignore */
+        }
+        await refreshAllTabIcons();
+
         consoleLog('DEBUG', 'Add-on initialization completed.');
     }
 

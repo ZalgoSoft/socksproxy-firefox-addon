@@ -3,15 +3,26 @@
  * @author Anthony Sabathier <sabathiera@gmail.com>
  */
 
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin: 1em;
+    color: #222;
+}
+
 hr {
     border-top: none;
     border-bottom: 1px solid grey;
+}
+
+h1 {
+    font-size: 1.4em;
 }
 
 label {
     margin: 0.5em;
     font-size: 1.5em;
     line-height: 2.4em;
+    display: block;
 }
 
 input[type=text],
@@ -19,16 +30,38 @@ input[type=number],
 input[type=checkbox],
 select {
     display: block;
-    margin: 0.5em;
+    margin: 0.5em 0;
     width: 50%;
     height: 2.5em;
     float: right;
 }
 
-input[type=submit] {
+input[type=checkbox] {
+    height: 1.4em;
+    width: auto;
+    float: right;
+    margin-top: 1.2em;
+}
+
+button#save {
     display: block;
     height: 2.5em;
     text-align: center;
     width: 25%;
     margin-left: 70%;
+    margin-top: 1em;
+    cursor: pointer;
+}
+
+.hint {
+    font-size: 0.9em;
+    color: #666;
+    clear: both;
+    margin: 0.5em 0.5em 1em 0.5em;
+}
+
+#version-hint {
+    font-size: 0.85em;
+    color: #888;
+    margin-left: 0.5em;
 }
